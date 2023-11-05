@@ -68,8 +68,8 @@ def train(_class_):
 
     data_transform, gt_transform = get_data_transforms(image_size, crop_size)
 
-    train_path = '../ISIC2018/'
-    test_path = '../ISIC2018/'
+    train_path = './ISIC2018/dataset/'
+    test_path = './ISIC2018/dataset/'
 
     train_data = MedicalDataset(root=train_path, transform=data_transform, phase="train")
     test_data = MedicalDataset(root=test_path, transform=data_transform, phase="test")
