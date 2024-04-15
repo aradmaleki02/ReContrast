@@ -108,6 +108,11 @@ def train(_class_):
         loss_list = []
         for img, label in train_dataloader:
             img = img.to(device)
+            # img.shape:    torch.Size([16, 3, 256, 256])
+            # label.shape:  torch.Size([16])
+
+            # en = [[1,256,64,64], [1,512,32,32], [1,1024,16,16], [1,256,64,64], [1,512,32,32], [1,1024,16,16]]
+            # de = [[1,256,64,64], [1,512,32,32], [1,1024,16,16], [1,256,64,64], [1,512,32,32], [1,1024,16,16]]
             en, de = model(img)
 
             alpha_final = 1

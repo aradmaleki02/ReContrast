@@ -45,6 +45,8 @@ def global_cosine(a, b, stop_grad=True):
 
 
 def global_cosine_hm(a, b, alpha=1., factor=0.):
+    # a(en): [[1,256,64,64], [1,512,32,32], [1,1024,16,16]]
+    # b(de): [[1,256,64,64], [1,512,32,32], [1,1024,16,16]]
     cos_loss = torch.nn.CosineSimilarity()
     loss = 0
     weight = [1, 1, 1]
@@ -170,8 +172,11 @@ def evaluation(model, dataloader, device, _class_=None, calc_pro=True, max_ratio
 
     with torch.no_grad():
         for img, gt, label, _ in dataloader:
-            img = img.to(device)
+            # gt: torch.Size([1, 3, 256, 256]) 
+            # img: torch.Size([1, 3, 256, 256])
+            # label: torch.Size([1])
 
+            img = img.to(device)
             en, de = model(img)
 
             anomaly_map, _ = cal_anomaly_map(en, de, img.shape[-1], amap_mode='a')
@@ -182,7 +187,9 @@ def evaluation(model, dataloader, device, _class_=None, calc_pro=True, max_ratio
 
             if calc_pro:
                 if label.item() != 0:
-                    aupro_list.append(compute_pro(gt.squeeze(0).cpu().numpy().astype(int),
+                    # gt.squeeze(0).cpu().numpy().astype(int)= (3, 256, 256)
+                    # anomaly_map[np.newaxis, :, :]: (1, 256, 256)
+                    aupro_list.append(compute_pro(gt.squeeze(0).cpu().numpy().astype(int)[:1,:,:],
                                                   anomaly_map[np.newaxis, :, :]))
 
             if max_ratio <= 0:
@@ -455,7 +462,7 @@ def compute_pro(masks: ndarray, amaps: ndarray, num_th: int = 200) -> None:
     assert isinstance(num_th, int), "type(num_th) must be int"
 
     df = pd.DataFrame([], columns=["pro", "fpr", "threshold"])
-    binary_amaps = np.zeros_like(amaps, dtype=np.bool)
+    binary_amaps = np.zeros_like(amaps, dtype=np.bool_)
 
     min_th = amaps.min()
     max_th = amaps.max()
@@ -477,9 +484,10 @@ def compute_pro(masks: ndarray, amaps: ndarray, num_th: int = 200) -> None:
         fp_pixels = np.logical_and(inverse_masks, binary_amaps).sum()
         fpr = fp_pixels / inverse_masks.sum()
 
-        df = df.append({"pro": mean(pros), "fpr": fpr, "threshold": th}, ignore_index=True)
+        # df = df.append({"pro": mean(pros), "fpr": fpr, "threshold": th}, ignore_index=True)
+        df = df._append({"pro": mean(pros), "fpr": fpr, "threshold": th}, ignore_index=True)
 
-    # Normalize FPR from 0 ~ 1 to 0 ~ 0.3
+    # Normalize FPRpro_list.append(compute_pro(gt.squee from 0 ~ 1 to 0 ~ 0.3
     df = df[df["fpr"] < 0.3]
     df["fpr"] = df["fpr"] / df["fpr"].max()
 
