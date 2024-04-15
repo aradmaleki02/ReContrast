@@ -175,6 +175,7 @@ def evaluation(model, dataloader, device, _class_=None, calc_pro=True, max_ratio
             # gt: torch.Size([1, 3, 256, 256]) 
             # img: torch.Size([1, 3, 256, 256])
             # label: torch.Size([1])
+            gt = gt[:, :1, :, :]
 
             img = img.to(device)
             en, de = model(img)
@@ -189,7 +190,7 @@ def evaluation(model, dataloader, device, _class_=None, calc_pro=True, max_ratio
                 if label.item() != 0:
                     # gt.squeeze(0).cpu().numpy().astype(int)= (3, 256, 256)
                     # anomaly_map[np.newaxis, :, :]: (1, 256, 256)
-                    aupro_list.append(compute_pro(gt.squeeze(0).cpu().numpy().astype(int)[:1,:,:],
+                    aupro_list.append(compute_pro(gt.squeeze(0).cpu().numpy().astype(int),
                                                   anomaly_map[np.newaxis, :, :]))
 
             if max_ratio <= 0:
