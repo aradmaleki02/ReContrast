@@ -55,11 +55,11 @@ def setup_seed(seed):
     torch.backends.cudnn.benchmark = False
 
 
-def train(_class_):
+def train(_class_, total_iters=2000):
     print_fn(_class_)
     setup_seed(111)
 
-    total_iters = 2000
+    total_iters = total_iters
     batch_size = 16
     image_size = 256
     crop_size = 256
@@ -157,6 +157,7 @@ if __name__ == '__main__':
                         default='recontrast_mvtec_it2k_lr2e31e5_wd1e5_hm1d01_s111')
     parser.add_argument('--gpu', default='0', type=str,
                         help='GPU id to use.')
+    parser.add_argument('--total_iters', type=int, default=2000)
     args = parser.parse_args()
 
     item_list = ['carpet', 'bottle', 'hazelnut', 'leather', 'cable', 'capsule', 'grid', 'pill',
@@ -171,7 +172,7 @@ if __name__ == '__main__':
     result_list = []
     result_list_best = []
     for i, item in enumerate(item_list):
-        auroc_px, auroc_sp, aupro_px, auroc_px_best, auroc_sp_best, aupro_px_best = train(item)
+        auroc_px, auroc_sp, aupro_px, auroc_px_best, auroc_sp_best, aupro_px_best = train(item, total_iters=args.total_iters)
         result_list.append([item, auroc_px, auroc_sp, aupro_px])
         result_list_best.append([item, auroc_px_best, auroc_sp_best, aupro_px_best])
 
